@@ -1,38 +1,39 @@
-import React, { useState } from 'react';
-import TodoForm from './components/TodoForm';
-import TodoList from './components/TodoList';
+import React, { useState, useEffect } from "react";
+import "./App.css";
 
-export interface Todo {
-  id: number;
-  text: string;
-  completed: boolean;
+interface Position {
+  x: number;
+  y: number;
 }
 
 const App: React.FC = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const [position, setPosition] = useState<Position>({ x: 50, y: 50 });
 
-  const addTodo = (text: string) => {
-    const newTodo: Todo = { id: Date.now(), text, completed: false };
-    setTodos([...todos, newTodo]);
-  };
+  useEffect(() => {
+    const moveSnake = () => {
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
 
-  const toggleTodo = (id: number) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
-  };
+      const newX = Math.max(0, Math.min(screenWidth - 50, position.x + (Math.random() * 100 - 50)));
+      const newY = Math.max(0, Math.min(screenHeight - 50, position.y + (Math.random() * 100 - 50)));
 
-  const deleteTodo = (id: number) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
-  };
+      setPosition({ x: newX, y: newY });
+    };
+
+    const interval = setInterval(moveSnake, 100);
+
+    return () => clearInterval(interval);
+  }, [position]);
 
   return (
-    <div>
-      <h1>To-Do List</h1>
-      <TodoForm addTodo={addTodo} />
-      <TodoList todos={todos} toggleTodo={toggleTodo} deleteTodo={deleteTodo} />
+    <div className="game-container">
+      <div
+        className="snake"
+        style={{
+          left: `${position.x}px`,
+          top: `${position.y}px`,
+        }}
+      ></div>
     </div>
   );
 };
